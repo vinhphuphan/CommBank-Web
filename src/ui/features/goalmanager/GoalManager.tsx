@@ -11,7 +11,15 @@ import { selectGoalsMap, updateGoal as updateGoalRedux } from '../../../store/go
 import { useAppDispatch, useAppSelector } from '../../../store/hooks'
 import DatePicker from '../../components/DatePicker'
 import { Theme } from '../../components/Theme'
+import { BaseEmoji } from 'emoji-mart'
 
+
+
+const EmojiPickerContainer = styled.div<EmojiPickerContainerProps>`
+  display: ${(props) => (props.isOpen ? 'flex' : 'none')};
+  position: absolute;
+  top: ${(props) => (props.hasIcon ? '10rem' : '2rem')};
+  left: 0;`
 type Props = { goal: Goal }
 export function GoalManager(props: Props) {
   const dispatch = useAppDispatch()
@@ -75,39 +83,55 @@ export function GoalManager(props: Props) {
     }
   }
 
-  return (
-    <GoalManagerContainer>
-      <NameInput value={name ?? ''} onChange={updateNameOnChange} />
+  const pickEmojiOnClick = () => (emoji: BaseEmoji, event: MouseEvent) => {
 
-      <Group>
-        <Field name="Target Date" icon={faCalendarAlt} />
-        <Value>
-          <DatePicker value={targetDate} onChange={pickDateOnChange} />
-        </Value>
-      </Group>
 
-      <Group>
-        <Field name="Target Amount" icon={faDollarSign} />
-        <Value>
-          <StringInput value={targetAmount ?? ''} onChange={updateTargetAmountOnChange} />
-        </Value>
-      </Group>
+    const updatedGoal: Goal = {
+      ...props.goal,
+      icon: emoji.native ?? props.goal.icon,
+      name: name ?? props.goal.name,
+      targetDate: targetDate ?? props.goal.targetDate,
+      targetAmount: targetAmount ?? props.goal.targetAmount,
+    }
 
-      <Group>
-        <Field name="Balance" icon={faDollarSign} />
-        <Value>
-          <StringValue>{props.goal.balance}</StringValue>
-        </Value>
-      </Group>
+    updateGoalApi(props.goal.id, updatedGoal)
+  }
 
-      <Group>
-        <Field name="Date Created" icon={faCalendarAlt} />
-        <Value>
-          <StringValue>{new Date(props.goal.created).toLocaleDateString()}</StringValue>
-        </Value>
-      </Group>
-    </GoalManagerContainer>
-  )
+}
+
+return (
+  <GoalManagerContainer>
+    <NameInput value={name ?? ''} onChange={updateNameOnChange} />
+
+    <Group>
+      <Field name="Target Date" icon={faCalendarAlt} />
+      <Value>
+        <DatePicker value={targetDate} onChange={pickDateOnChange} />
+      </Value>
+    </Group>
+
+    <Group>
+      <Field name="Target Amount" icon={faDollarSign} />
+      <Value>
+        <StringInput value={targetAmount ?? ''} onChange={updateTargetAmountOnChange} />
+      </Value>
+    </Group>
+
+    <Group>
+      <Field name="Balance" icon={faDollarSign} />
+      <Value>
+        <StringValue>{props.goal.balance}</StringValue>
+      </Value>
+    </Group>
+
+    <Group>
+      <Field name="Date Created" icon={faCalendarAlt} />
+      <Value>
+        <StringValue>{new Date(props.goal.created).toLocaleDateString()}</StringValue>
+      </Value>
+    </Group>
+  </GoalManagerContainer>
+)
 }
 
 type FieldProps = { name: string; icon: IconDefinition }
